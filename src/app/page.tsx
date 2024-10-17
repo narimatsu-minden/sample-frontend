@@ -1,8 +1,7 @@
 "use client";
-import { ApolloProvider, gql, useMutation } from "@apollo/client";
-import { Box, Button, Input, TextField } from "@mui/material";
+import { gql, useMutation } from "@apollo/client";
+import { Box, Button, TextField } from "@mui/material";
 import Image from "next/image";
-import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 interface UserRegister {
@@ -20,14 +19,9 @@ const CREATE_USER = gql`
 `;
 
 export default function Home() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<UserRegister>();
+  const { register, handleSubmit } = useForm<UserRegister>();
 
-  const [createUser, { client, loading }] = useMutation(CREATE_USER);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [createUser] = useMutation(CREATE_USER);
 
   // フォーム送信時の処理
   const onSubmit: SubmitHandler<UserRegister> = async (formData) => {
