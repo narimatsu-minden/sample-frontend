@@ -1,0 +1,40 @@
+name: Deploy to S3
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["22.x"]
+    steps:
+      - name: check-out
+        uses: actions/checkout@v4
+
+      - name: setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{matrix.node-version}}
+      - name: install dependency
+        run: npm install
+
+      - name: run lint
+        run: npm run lint
+
+      - name: build
+        run: npm run build
+
+      - name: Upload to S3
+        run: |
+          aws s3 sync ./.next s3://$S3_BUCKET --recursive
+        env:
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+
+      - name: delete cloudfront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+        env:
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
